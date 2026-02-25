@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/RASettlementPoint.schema.json",
+  "title": "RASettlementPoint",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "position",
+    "priceAmount"
+  ],
+  "properties": {
+    "position": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "priceAmount": {
+      "type": "number",
+      "description": "Negative for credit, positive for debit"
+    }
+  }
+}

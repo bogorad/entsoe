@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/RemedialActionCostInputRecord.schema.json",
+  "title": "RemedialActionCostInputRecord",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "senderEic",
+    "targetDate",
+    "raScheduleIdentifier",
+    "costInfoStatus",
+    "costlyActionType",
+    "activationMode",
+    "activatedVolumeMW"
+  ],
+  "properties": {
+    "senderEic": {
+      "type": "string",
+      "minLength": 1
+    },
+    "targetDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "raScheduleIdentifier": {
+      "type": "string",
+      "minLength": 1
+    },
+    "costInfoStatus": {
+      "type": "string",
+      "enum": [
+        "provisional",
+        "final"
+      ]
+    },
+    "friendlyAssetName": {
+      "type": "string"
+    },
+    "costlyActionType": {
+      "type": "string",
+      "enum": [
+        "redispatch",
+        "countertrade"
+      ]
+    },
+    "activationMode": {
+      "type": "string",
+      "enum": [
+        "preventive",
+        "curative",
+        "curativeAndPreventive"
+      ]
+    },
+    "associatedContingencyId": {
+      "type": "string"
+    },
+    "startupCostEur": {
+      "type": "number"
+    },
+    "shutdownCostEur": {
+      "type": "number"
+    },
+    "savedFuelCostEur": {
+      "type": "number"
+    },
+    "opportunityCostEur": {
+      "type": "number"
+    },
+    "operationalCostEur": {
+      "type": "number"
+    },
+    "otherFixedCostEur": {
+      "type": "number"
+    },
+    "variableIncurredCostPerMWh": {
+      "type": "number"
+    },
+    "activatedVolumeMW": {
+      "type": "number"
+    },
+    "activatingTsoEic": {
+      "type": "string"
+    },
+    "requestingTsoOrScEic": {
+      "type": "string"
+    },
+    "overloadedElementId": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "activatedVolumeMW": {
+            "const": 0
+          }
+        },
+        "required": [
+          "activatedVolumeMW"
+        ]
+      },
+      "then": {
+        "properties": {
+          "variableIncurredCostPerMWh": {
+            "const": 0
+          }
+        }
+      }
+    }
+  ]
+}

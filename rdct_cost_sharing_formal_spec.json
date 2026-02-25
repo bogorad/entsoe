@@ -1,0 +1,862 @@
+{
+  "meta": {
+    "id": "entsoe-rdct-cost-sharing-formal-spec",
+    "version": "0.1.0-subset",
+    "generatedAt": "2026-02-25",
+    "scope": "Formalized exchange and data model for RD and CT cost sharing based only on two source specification PDFs",
+    "coverageMode": "subset-rdct-cost-sharing",
+    "sourceFiles": [
+      {
+        "url": "https://eepublicdownloads.entsoe.eu/clean-documents/CIM_documents/Grid_Model_CIM/RD_CT_Cost_Sharing_IG_v1.0.pdf",
+        "title": "RD & CT Cost sharing IG",
+        "version": "1.0"
+      },
+      {
+        "url": "https://eepublicdownloads.entsoe.eu/clean-documents/CIM_documents/Grid_Model_CIM/RemedialActionSchedule_Profile_Specification_v2.2.pdf",
+        "title": "Remedial Action Schedule profile specification",
+        "version": "2.2"
+      }
+    ],
+    "diagramEvidence": [
+      {
+        "path": "source_docs/RD_CT_Cost_Sharing_IG_v1.0_png_pages/RD_CT_Cost_Sharing_IG_v1.0_page_014.png",
+        "figure": "Use case diagram"
+      },
+      {
+        "path": "source_docs/RD_CT_Cost_Sharing_IG_v1.0_png_pages/RD_CT_Cost_Sharing_IG_v1.0_page_017.png",
+        "figure": "Activity diagram"
+      },
+      {
+        "path": "source_docs/RD_CT_Cost_Sharing_IG_v1.0_png_pages/RD_CT_Cost_Sharing_IG_v1.0_page_019.png",
+        "figure": "Sequence diagram"
+      },
+      {
+        "path": "source_docs/RemedialActionSchedule_Profile_Specification_v2.2_png_pages/RemedialActionSchedule_Profile_Specification_v2.2_page_012.png",
+        "figure": "Main profile class diagram"
+      }
+    ],
+    "assumptions": [
+      "This draft formalization models the subset needed for RD and CT cost-sharing exchange and settlement, not every class in the full RAS profile.",
+      "Some coded value rows in source tables are visually ambiguous; these are retained as enumerated alternatives with notes.",
+      "Regional process options (RCC and CSE participation, deadlines, validation behavior) are represented as configurable policy fields."
+    ]
+  },
+  "normativeContext": {
+    "objective": "Standardize data exchange for inter-TSO redispatch and countertrade cost sharing while allowing CCR-specific methodology choices.",
+    "principles": [
+      "requesterPays",
+      "ownerPays",
+      "polluterPays",
+      "socialization",
+      "socializationCongestionIncomeBased",
+      "fixedKey"
+    ],
+    "profiles": [
+      {
+        "id": "RAS",
+        "name": "Remedial Action Schedule profile",
+        "version": "2.1 in IG, 2.2 in profile spec",
+        "family": "IEC 61970"
+      },
+      {
+        "id": "ACK",
+        "name": "Acknowledgement_MarketDocument",
+        "version": "8.1",
+        "family": "IEC 62325-451-1"
+      },
+      {
+        "id": "CONF",
+        "name": "Confirmation_MarketDocument",
+        "version": "5.3",
+        "family": "IEC 62325-451-2"
+      },
+      {
+        "id": "RASETTLEMENT",
+        "name": "RASettlement_MarketDocument",
+        "version": "1.0",
+        "family": "IEC 62325-351 based custom profile"
+      }
+    ]
+  },
+  "roleModel": {
+    "actors": [
+      {
+        "id": "SO",
+        "name": "System Operator",
+        "marketRoleCode": "A04",
+        "responsibilities": [
+          "Provide costs and activated volumes",
+          "Validate settlement attachment",
+          "Validate invoicing documents"
+        ]
+      },
+      {
+        "id": "CSC",
+        "name": "Cost Sharing Calculator",
+        "marketRoleCode": "A53",
+        "responsibilities": [
+          "Calculate cost sharing",
+          "Issue settlement attachment",
+          "Forward validated settlement attachment"
+        ]
+      },
+      {
+        "id": "RAC",
+        "name": "Remedial Action Coordinator",
+        "responsibilities": [
+          "Provide grid model and activated costly remedial actions and overloaded elements"
+        ],
+        "inScope": false
+      },
+      {
+        "id": "SR",
+        "name": "Settlement Responsible",
+        "marketRoleCode": "A54",
+        "responsibilities": [
+          "Perform financial settlement"
+        ],
+        "inScope": "partly"
+      },
+      {
+        "id": "BA",
+        "name": "Billing Agent",
+        "responsibilities": [
+          "Issue corresponding invoices"
+        ],
+        "inScope": false
+      }
+    ],
+    "policyOptions": {
+      "technicalPartPerformedByRCC": true,
+      "financialPartPerformedByCSE": true,
+      "note": "Both options depend on TSO request and CCR setup"
+    }
+  },
+  "processModel": {
+    "choreography": [
+      {
+        "step": 1,
+        "name": "ProvideCostsAndActivatedVolumes",
+        "from": "SO",
+        "to": "CSC",
+        "document": "RAS",
+        "description": "SO sends provisional or final remedial action costs and activated volumes"
+      },
+      {
+        "step": 2,
+        "name": "CalculateCostSharing",
+        "from": "CSC",
+        "to": "CSC",
+        "document": "internal",
+        "description": "CSC validates inputs and computes settlement attachment"
+      },
+      {
+        "step": 3,
+        "name": "ProvideSettlementAttachment",
+        "from": "CSC",
+        "to": "SO",
+        "document": "RASETTLEMENT",
+        "description": "CSC sends settlement attachment for SO validation"
+      },
+      {
+        "step": 4,
+        "name": "ConfirmSettlementAttachment",
+        "from": "SO",
+        "to": "CSC",
+        "document": "CONF",
+        "description": "SO confirms or rejects settlement attachment"
+      },
+      {
+        "step": 5,
+        "name": "ForwardValidatedSettlementAttachment",
+        "from": "CSC",
+        "to": "SR",
+        "document": "RASETTLEMENT",
+        "description": "CSC forwards validated settlement attachment to settlement responsible"
+      },
+      {
+        "step": 6,
+        "name": "PerformFinancialSettlement",
+        "from": "SR",
+        "to": "SR",
+        "document": "outOfScope",
+        "description": "Financial settlement generates invoicing documents"
+      },
+      {
+        "step": 7,
+        "name": "IssueInvoices",
+        "from": "BA",
+        "to": "SO",
+        "document": "outOfScope",
+        "description": "Billing agent issues corresponding invoices"
+      }
+    ],
+    "acknowledgementRule": {
+      "description": "All received profiles except RAS are acknowledged in syntactic and business semantic way",
+      "appliesTo": [
+        "ACK",
+        "CONF",
+        "RASETTLEMENT"
+      ],
+      "excludes": [
+        "RAS"
+      ]
+    },
+    "timingPolicy": {
+      "coreExample": {
+        "upstreamInputAvailability": "D+1",
+        "provisionalCorrectionDeadline": "30 days after month end",
+        "finalCostDeadline": "90 days after quarter end"
+      },
+      "noConfirmationBehavior": "Settlement attachment is deemed positively confirmed after review period",
+      "regionalOverrideAllowed": true
+    },
+    "reworkLoops": [
+      {
+        "condition": "Input invalid",
+        "action": "Resubmit costs and activated volumes"
+      },
+      {
+        "condition": "Negative confirmation",
+        "action": "CSC recalculates and reissues settlement attachment"
+      },
+      {
+        "condition": "Invoicing documents not correct",
+        "action": "SR re-performs financial settlement"
+      }
+    ]
+  },
+  "artifactSpecifications": {
+    "RASCostInput": {
+      "description": "Main attribute subset used by RD and CT cost-sharing process",
+      "recordLevelRules": [
+        "A remedial action that was not activated must still be reported with activatedVolumeMW = 0 and variableIncurredCostPerMWh = 0.",
+        "Files may be daily or monthly depending on CCR methodology.",
+        "Files are versioned until applicable provisional and final deadlines."
+      ],
+      "fields": [
+        {
+          "name": "senderEic",
+          "source": "Header prov:Entity.wasAttributedTo",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "targetDate",
+          "source": "BaseSchedule.startTime",
+          "required": true,
+          "type": "date"
+        },
+        {
+          "name": "raScheduleIdentifier",
+          "source": "RemedialActionSchedule association to RemedialAction.mRID",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "costInfoStatus",
+          "source": "RemedialActionSchedule.statusKind or RemedialActionCost.kind",
+          "required": true,
+          "type": "enum",
+          "enum": [
+            "provisional",
+            "final"
+          ]
+        },
+        {
+          "name": "friendlyAssetName",
+          "source": "RemedialAction related asset naming",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "costlyActionType",
+          "source": "RedispatchScheduleAction or CountertradeScheduleAction",
+          "required": true,
+          "type": "enum",
+          "enum": [
+            "redispatch",
+            "countertrade"
+          ]
+        },
+        {
+          "name": "activationMode",
+          "source": "RemedialAction.kind",
+          "required": true,
+          "type": "enum",
+          "enum": [
+            "preventive",
+            "curative",
+            "curativeAndPreventive"
+          ]
+        },
+        {
+          "name": "associatedContingencyId",
+          "source": "RemedialActionSchedule.Contingency",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "startupCostEur",
+          "source": "RemedialActionCost.startupCost",
+          "required": false,
+          "type": "decimal"
+        },
+        {
+          "name": "shutdownCostEur",
+          "source": "RemedialActionCost.shutdownCost",
+          "required": false,
+          "type": "decimal"
+        },
+        {
+          "name": "savedFuelCostEur",
+          "source": "RemedialActionCost.savedFuelCost",
+          "required": false,
+          "type": "decimal"
+        },
+        {
+          "name": "opportunityCostEur",
+          "source": "RemedialActionCost.opportunityCost",
+          "required": false,
+          "type": "decimal"
+        },
+        {
+          "name": "operationalCostEur",
+          "source": "RemedialActionCost.operationalCost",
+          "required": false,
+          "type": "decimal"
+        },
+        {
+          "name": "otherFixedCostEur",
+          "source": "RemedialActionCost.otherCost",
+          "required": false,
+          "type": "decimal"
+        },
+        {
+          "name": "variableIncurredCostPerMWh",
+          "source": "PowerScheduleAction.energyPrice",
+          "required": false,
+          "type": "decimal"
+        },
+        {
+          "name": "activatedVolumeMW",
+          "source": "Redispatch and Countertrade action energy or activated power quantity",
+          "required": true,
+          "type": "decimal"
+        },
+        {
+          "name": "activatingTsoEic",
+          "source": "RemedialAction to SystemOperator association",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "requestingTsoOrScEic",
+          "source": "RemedialActionSchedule proposing entity",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "overloadedElementId",
+          "source": "AssessedElement association",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    "Acknowledgement_MarketDocument": {
+      "header": {
+        "mRID": "used",
+        "createdDateTime": "used",
+        "sender_MarketParticipant.mRID": "EIC of SO or CSC, coding scheme A01",
+        "sender_MarketParticipant.marketRole.type": [
+          "A04",
+          "A53"
+        ],
+        "receiver_MarketParticipant.mRID": "EIC of SO or CSC, coding scheme A01",
+        "receiver_MarketParticipant.marketRole.type": [
+          "A04",
+          "A53"
+        ],
+        "received_MarketDocument.mRID": "used",
+        "received_MarketDocument.revisionNumber": "used"
+      },
+      "reason": {
+        "code": {
+          "A01": "message accepted",
+          "A02": "message rejected"
+        },
+        "text": "optional explanatory text"
+      }
+    },
+    "Confirmation_MarketDocument": {
+      "header": {
+        "mRID": "used",
+        "type": "A18 Confirmation Report",
+        "createdDateTime": "used",
+        "sender_MarketParticipant.mRID": "SO EIC, coding scheme A01",
+        "sender_MarketParticipant.marketRole.type": "A04",
+        "receiver_MarketParticipant.mRID": "CSC EIC, coding scheme A01",
+        "receiver_MarketParticipant.marketRole.type": "A53",
+        "schedule_Period.timeInterval": "monthly",
+        "confirmed_MarketDocument.mRID": "used",
+        "confirmed_MarketDocument.revisionNumber": "used",
+        "domain.mRID": "capacity calculation region EIC"
+      },
+      "reason": {
+        "code": {
+          "A01": "SO agrees settlement attachment",
+          "A02": "SO disagrees settlement attachment"
+        },
+        "text": "optional explanatory text"
+      },
+      "implicitAcceptanceOnTimeout": true
+    },
+    "RASettlement_MarketDocument": {
+      "header": {
+        "mRID": "used",
+        "revisionNumber": "used",
+        "type": "B38 Settlement document",
+        "process.processType": "A66 Cost Sharing",
+        "sender_MarketParticipant.mRID": "CSC EIC, coding scheme A01",
+        "sender_MarketParticipant.marketRole.type": "A53",
+        "receiver_MarketParticipant.mRID": "SO EIC or SR EIC, coding scheme A01",
+        "receiver_MarketParticipant.marketRole.type": [
+          "A04",
+          "A54"
+        ],
+        "createdDateTime": "used",
+        "period.timeInterval": "whole covered monthly period"
+      },
+      "timeseries": {
+        "mRID": "used",
+        "businessType": [
+          "C86 Remedial Action Cost Summary",
+          "C87 Cost Sharing Settlement Result"
+        ],
+        "curveType": "A01 Sequential fixed size block",
+        "marketObjectStatus.status": [
+          "A02 Final",
+          "A35 Preliminary",
+          "A73 Delta"
+        ],
+        "currency_Unit.name": "EUR",
+        "marketParticipant.mRID": "SO EIC",
+        "marketParticipant.marketRole.type": "A04",
+        "series_Period.timeInterval": "monthly",
+        "series_Period.resolution": "P1M",
+        "point.position": "position in monthly series",
+        "point.price.amount": "credit negative, debit positive"
+      },
+      "settlementAttachmentComposition": [
+        "Remedial Action Costs Summary",
+        "Cost Sharing Settlement Result"
+      ],
+      "referenceNumberPatterns": [
+        "YYYY/MM/PRO/01",
+        "YYYY/MM/FIN/01"
+      ]
+    }
+  },
+  "dataModel": {
+    "entities": [
+      {
+        "name": "RemedialActionSchedule",
+        "kind": "root",
+        "attributes": [
+          {
+            "name": "mRID",
+            "type": "String",
+            "multiplicity": "1..1"
+          },
+          {
+            "name": "name",
+            "type": "String",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "statusKind",
+            "type": "RemedialActionScheduleStatusKind",
+            "multiplicity": "1..1"
+          },
+          {
+            "name": "statusReason",
+            "type": "String",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "totalCostCurrency",
+            "type": "Currency",
+            "multiplicity": "0..1"
+          }
+        ],
+        "associations": [
+          {
+            "name": "RemedialAction",
+            "type": "RemedialAction",
+            "multiplicity": "1..1"
+          },
+          {
+            "name": "Contingency",
+            "type": "Contingency",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "ProposingEntity",
+            "type": "SecurityCoordinator",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "AssignedRegion",
+            "type": "Region",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "RemedialActionScheduleGroup",
+            "type": "RemedialActionScheduleGroup",
+            "multiplicity": "0..1"
+          }
+        ],
+        "constraints": [
+          "C:NC:RAS:RemedialActionSchedule:proposingEntity - either ProposingEntity exists or at least one ProposingRemedialActionScheduleShare is linked"
+        ]
+      },
+      {
+        "name": "ProposingRemedialActionScheduleShare",
+        "kind": "root",
+        "attributes": [
+          {
+            "name": "costSharingFactor",
+            "type": "Decimal",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "mRID",
+            "type": "String",
+            "multiplicity": "0..1"
+          }
+        ],
+        "associations": [
+          {
+            "name": "RemedialActionSchedule",
+            "type": "RemedialActionSchedule",
+            "multiplicity": "1..1"
+          },
+          {
+            "name": "ProposingEntity",
+            "type": "SystemOperator",
+            "multiplicity": "1..1"
+          }
+        ]
+      },
+      {
+        "name": "RemedialAction",
+        "kind": "abstract",
+        "attributes": [
+          {
+            "name": "mRID",
+            "type": "String",
+            "multiplicity": "1..1"
+          },
+          {
+            "name": "name",
+            "type": "String",
+            "multiplicity": "0..1"
+          }
+        ]
+      },
+      {
+        "name": "PowerScheduleAction",
+        "kind": "abstract",
+        "attributes": [
+          {
+            "name": "currency",
+            "type": "Currency",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "energyPrice",
+            "type": "Decimal",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "mRID",
+            "type": "String",
+            "multiplicity": "1..1"
+          }
+        ],
+        "associations": [
+          {
+            "name": "RemedialActionSchedule",
+            "type": "RemedialActionSchedule",
+            "multiplicity": "1..1"
+          },
+          {
+            "name": "PowerSchedule",
+            "type": "PowerSchedule",
+            "multiplicity": "1..1"
+          },
+          {
+            "name": "PowerBidSchedule",
+            "type": "PowerBidSchedule",
+            "multiplicity": "0..1"
+          }
+        ]
+      },
+      {
+        "name": "RedispatchScheduleAction",
+        "kind": "concrete",
+        "inherits": "PowerScheduleAction",
+        "associations": [
+          {
+            "name": "ScheduleResource",
+            "type": "ScheduleResource",
+            "multiplicity": "0..1"
+          }
+        ]
+      },
+      {
+        "name": "PowerTimePoint",
+        "kind": "root",
+        "attributes": [
+          {
+            "name": "atTime",
+            "type": "DateTime",
+            "multiplicity": "1..1"
+          },
+          {
+            "name": "p",
+            "type": "ActivePower",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "q",
+            "type": "ReactivePower",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "price",
+            "type": "Decimal",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "activatedP",
+            "type": "ActivePower",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "activatedPrice",
+            "type": "Decimal",
+            "multiplicity": "0..1"
+          }
+        ],
+        "associations": [
+          {
+            "name": "PowerSchedule",
+            "type": "PowerSchedule",
+            "multiplicity": "1..1"
+          }
+        ]
+      },
+      {
+        "name": "RemedialActionCost",
+        "kind": "root",
+        "attributes": [
+          {
+            "name": "mRID",
+            "type": "String",
+            "multiplicity": "1..1"
+          },
+          {
+            "name": "costAllocationTime",
+            "type": "DateTime",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "kind",
+            "type": "CostSettledKind",
+            "multiplicity": "1..1"
+          },
+          {
+            "name": "startupCost",
+            "type": "Decimal",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "shutdownCost",
+            "type": "Decimal",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "savedFuelCost",
+            "type": "Decimal",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "opportunityCost",
+            "type": "Decimal",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "operationalCost",
+            "type": "Decimal",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "otherCost",
+            "type": "Decimal",
+            "multiplicity": "0..1"
+          },
+          {
+            "name": "processingFee",
+            "type": "Decimal",
+            "multiplicity": "0..1"
+          }
+        ],
+        "associations": [
+          {
+            "name": "RemedialActionSchedule",
+            "type": "RemedialActionSchedule",
+            "multiplicity": "1..1"
+          }
+        ]
+      },
+      {
+        "name": "RemedialActionScheduleAcceptance",
+        "kind": "root",
+        "attributes": [
+          {
+            "name": "kind",
+            "type": "RemedialActionScheduleAcceptanceKind",
+            "multiplicity": "1..1"
+          },
+          {
+            "name": "mRID",
+            "type": "String",
+            "multiplicity": "1..1"
+          }
+        ],
+        "associations": [
+          {
+            "name": "RemedialActionSchedule",
+            "type": "RemedialActionSchedule",
+            "multiplicity": "1..1"
+          },
+          {
+            "name": "SystemOperator",
+            "type": "SystemOperator",
+            "multiplicity": "1..1"
+          }
+        ]
+      }
+    ],
+    "enumerations": {
+      "CostSettledKind": [
+        "indicative",
+        "provisional",
+        "final"
+      ],
+      "RemedialActionScheduleAcceptanceKind": [
+        "accepted",
+        "refused",
+        "waiting"
+      ],
+      "RemedialActionScheduleStatusKind": [
+        "proposed",
+        "agreed",
+        "rejected",
+        "ordered",
+        "previouslyAgreed",
+        "notUsed",
+        "agreementValidated",
+        "rejectionValidated",
+        "implemented",
+        "activated"
+      ],
+      "TimeSeriesInterpolationKind": [
+        "none",
+        "next"
+      ],
+      "ValueOffsetKind": [
+        "absolute",
+        "incremental",
+        "incrementalPercentage"
+      ]
+    },
+    "datatypeConstraints": {
+      "ActivePower": {
+        "unit": "W",
+        "multiplier": "M"
+      },
+      "RealEnergy": {
+        "unit": "Wh",
+        "multiplier": "M"
+      },
+      "ReactivePower": {
+        "unit": "VAr",
+        "multiplier": "M"
+      },
+      "Seconds": {
+        "unit": "s",
+        "multiplier": "none"
+      }
+    }
+  },
+  "validationRules": [
+    {
+      "id": "VR-001",
+      "severity": "error",
+      "description": "Every RemedialActionSchedule must link to exactly one RemedialAction"
+    },
+    {
+      "id": "VR-002",
+      "severity": "error",
+      "description": "RemedialActionSchedule must have ProposingEntity or at least one ProposingRemedialActionScheduleShare"
+    },
+    {
+      "id": "VR-003",
+      "severity": "error",
+      "description": "When a costly remedial action is not activated, activatedVolumeMW and variableIncurredCostPerMWh must both be zero"
+    },
+    {
+      "id": "VR-004",
+      "severity": "error",
+      "description": "Confirmation reason code must be A01 or A02"
+    },
+    {
+      "id": "VR-005",
+      "severity": "error",
+      "description": "RASettlement process.processType must equal A66"
+    },
+    {
+      "id": "VR-006",
+      "severity": "error",
+      "description": "RASettlement TimeSeries businessType must be C86 or C87"
+    },
+    {
+      "id": "VR-007",
+      "severity": "warning",
+      "description": "Review-period timeout results in implicit positive confirmation"
+    }
+  ],
+  "canonicalSchemas": {
+    "RemedialActionCostInputRecord": {
+      "$ref": "schemas/RemedialActionCostInputRecord.schema.json"
+    },
+    "RASettlementPoint": {
+      "$ref": "schemas/RASettlementPoint.schema.json"
+    }
+  },
+  "openIssuesForClarification": [
+    {
+      "id": "OQ-001",
+      "topic": "RASettlement marketObjectStatus.status code list",
+      "note": "Source table is visually ambiguous around A02/A35/A73 row boundaries; draft includes all three values."
+    },
+    {
+      "id": "OQ-002",
+      "topic": "Activated volume source attribute",
+      "note": "IG maps activated volume to redispatch or countertrade action energy; in RAS class model this can be represented either through action-level quantity or time-point activatedP depending on implementation profile."
+    }
+  ]
+}
