@@ -1,0 +1,22 @@
+time=2026-02-25T22:03:17.306+01:00 level=INFO msg="Daemon started (interval: %v, auto-commit: %v, auto-push: %v)" !BADKEY=5s !BADKEY=false !BADKEY=false
+time=2026-02-25T22:03:17.308+01:00 level=INFO msg="using database" path=/home/chuck/git/entsoe/.beads/beads.db
+time=2026-02-25T22:03:17.399+01:00 level=INFO msg="database opened" path=/home/chuck/git/entsoe/.beads/beads.db backend=sqlite freshness_checking=true
+time=2026-02-25T22:03:17.399+01:00 level=INFO msg="upgrading .beads/.gitignore"
+time=2026-02-25T22:03:17.399+01:00 level=WARN msg="failed to upgrade .gitignore" error="open .beads/.gitignore: no such file or directory"
+time=2026-02-25T22:03:17.405+01:00 level=INFO msg="Repository fingerprint validated: %s" !BADKEY=ba2ab65b
+time=2026-02-25T22:03:17.406+01:00 level=INFO msg="starting RPC server" socket=/home/chuck/git/entsoe/.beads/bd.sock
+time=2026-02-25T22:03:17.408+01:00 level=INFO msg="RPC server ready (socket listening)"
+time=2026-02-25T22:03:17.412+01:00 level=INFO msg="registered in global registry"
+time=2026-02-25T22:03:17.412+01:00 level=INFO msg="Starting %s..." !BADKEY="sync cycle"
+time=2026-02-25T22:03:17.413+01:00 level=INFO msg="Exported to JSONL"
+time=2026-02-25T22:03:17.436+01:00 level=INFO msg="Imported from JSONL"
+time=2026-02-25T22:03:17.451+01:00 level=INFO msg="Sync cycle complete"
+time=2026-02-25T22:03:17.451+01:00 level=INFO msg="monitoring parent process" pid=0
+time=2026-02-25T22:03:17.451+01:00 level=INFO msg="using event-driven mode"
+time=2026-02-25T22:03:17.452+01:00 level=INFO msg="Auto-pull disabled: use 'git pull' manually to sync remote changes"
+time=2026-02-25T22:21:34.347+01:00 level=INFO msg="JSONL file created: %s" !BADKEY=/home/chuck/git/entsoe/.beads/issues.jsonl
+time=2026-02-25T22:21:34.348+01:00 level=INFO msg="File change detected: %s" !BADKEY=/home/chuck/git/entsoe/.beads/issues.jsonl
+time=2026-02-25T22:21:34.366+01:00 level=INFO msg="Git ref change detected: %s" !BADKEY=/home/chuck/git/entsoe/.git/refs/heads/dev.lock
+time=2026-02-25T22:21:35.367+01:00 level=INFO msg="Import triggered by file change"
+time=2026-02-25T22:21:35.367+01:00 level=INFO msg="Starting %s..." !BADKEY=auto-import
+time=2026-02-25T22:21:35.368+01:00 level=INFO msg="Skipping %s: JSONL content unchanged" !BADKEY=auto-import
