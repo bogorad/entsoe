@@ -2,6 +2,9 @@
   "database": "dolt",
   "backend": "dolt",
   "dolt_mode": "server",
+  "dolt_server_host": "doltsrv.lan",
+  "dolt_server_port": 3307,
+  "dolt_server_user": "root",
   "dolt_database": "entsoe",
-  "project_id": "f3f16657-f8bc-4baf-9823-118a401fa026"
+  "project_id": "1dd5b6ef-0288-4f4d-af0f-8cb676fbc563"
 }

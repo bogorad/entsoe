@@ -5,3 +5,6 @@ source_docs/RemedialActionSchedule_Profile_Specification_v2.2_png_pages/
 # Dolt database files (added by bd init)
 .dolt/
 *.db
+
+# Beads / Dolt files (added by bd init)
+.beads-credential-key
